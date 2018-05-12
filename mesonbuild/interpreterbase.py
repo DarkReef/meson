@@ -214,6 +214,12 @@ class InterpreterBase:
             raise InvalidCode('No statements in code.')
         first = self.ast.lines[0]
         if not isinstance(first, mparser.FunctionNode) or first.func_name != 'project':
+            parent_dir = os.path.split(self.source_root)[0]
+            if os.path.isfile(os.path.join(parent_dir, 'meson.build')):
+                while os.path.isfile(os.path.join(parent_dir, 'meson.build')):
+                    parent_dir, last_dir = os.path.split(parent_dir)
+                mlog.warning('Perhaps you call build from project subdir?')
+                mlog.warning('First meson.build found at', os.path.join(parent_dir, last_dir))
             raise InvalidCode('First statement must be a call to project')
 
     def run(self):
